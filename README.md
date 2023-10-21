@@ -123,13 +123,13 @@ Para la extracción de datos se ha hecho una conexión de orígen de datos desde
 
 <br></br>
 
-![E1](Capstone_project\img\E1.jpg)
+![E1](Capstone_project/img/E1.jpg)
 
 <br></br>
 Los datos pasaron a ser mostrados en el Editor de PowerQuery para su posterior tratamiento y transformación (ver siguiente figura)
 <br></br>
 
-![E2](Capstone_project\img\E2.jpg)
+![E2](Capstone_project/img/E2.jpg)
 <br></br>
 
 El código en Lenguaje M implementado para la extracción de datos se encuentra en el apartado [8.2 de este documento](#82-powerquery)
