@@ -1,0 +1,107 @@
+﻿DEFINE 
+---- MODEL MEASURES BEGIN ----
+MEASURE DAX_Measures[Acceptance rate over Total] = 
+VAR sum_accepante = SUM(ConversionRates[Accepted Rate])
+VAR total_customers = MAX(ConversionRates[Total Contacts])
+VAR total = ROUND(DIVIDE(sum_accepante, total_customers, 0)*100, 2)
+    RETURN
+        CONCATENATE(total, "%")
+MEASURE DAX_Measures[Customer Complaint Rate] = 
+VAR rate = 
+    CALCULATE(
+        DIVIDE(
+            COUNTROWS(FILTER(CustomerValueDim, CustomerValueDim[Complain] = 1)), 
+            COUNTROWS(CustomerValueDim)
+        )
+    ) * 100
+    RETURN
+        CONCATENATE(IF(ISBLANK(rate), 0, ROUND(rate,2)), "%")
+MEASURE DAX_Measures[Customer Response Rate] = 
+VAR response_rate = 
+    CALCULATE(
+        DIVIDE(
+            COUNTROWS(FILTER(CustomerValueDim, CustomerValueDim[Response] = 1)), 
+            COUNTROWS(CustomerValueDim)
+        )
+    ) * 100
+    RETURN
+        CONCATENATE(IF(ISBLANK(response_rate),0,ROUND(response_rate, 2)), "%")
+
+MEASURE DAX_Measures[Education Dist] = 
+CALCULATE(
+    COUNTROWS(CustomerDim),
+   NOT(ISBLANK(CustomerDim[Education_ID]))
+)
+
+MEASURE DAX_Measures[KidHome Ratio] = 
+VAR kidhome_count =
+    CALCULATE(
+            COUNT(CustomerDim[Kidhome]), 
+            KEEPFILTERS(CustomerDim[Kidhome] > 0)
+    )
+    RETURN
+        DIVIDE(kidhome_count, COUNTROWS(CustomerDim), 0)
+MEASURE DAX_Measures[Marital Status Dist] = 
+CALCULATE(
+    COUNTROWS(CustomerDim),
+    NOT(ISBLANK(CustomerDim[Marital_Status_ID]))
+)
+MEASURE DAX_Measures[Recency Average by Decile] = 
+VAR AvgRecency = 
+    CALCULATE(
+    AVERAGE(CustomerValueDim[Recency]),
+    ALLSELECTED(CustomerDim[Income Decile])
+)
+RETURN
+    FORMAT(AvgRecency, "#,##0.00", "es-ES")
+
+MEASURE DAX_Measures[Response_Recency_Ratio_90] = 
+VAR response_90_days =
+    CALCULATE (
+        COUNT ( CustomerValueDim[Recency] ),
+        KEEPFILTERS ( CustomerValueDim[Recency] <= 90 ),
+        KEEPFILTERS ( CustomerValueDim[Response] = 1 )
+    )
+VAR customers_90_days =
+    CALCULATE (
+        COUNT ( CustomerValueDim[Recency] ),
+        KEEPFILTERS ( CustomerValueDim[Recency] <= 90 )
+    )
+VAR ratio_90_days =
+    DIVIDE ( response_90_days, customers_90_days, 0 )
+RETURN
+    CONCATENATE(IF(ISBLANK(ratio_90_days), 0, ROUND(ratio_90_days, 2)) * 100, "%")
+MEASURE DAX_Measures[Selected Decil] = 
+VAR decil = SELECTEDVALUE(CustomerDim[Income Decile])
+    RETURN
+        IF(ISBLANK(decil),"ALL",decil)
+MEASURE DAX_Measures[TeenHome Ratio] = 
+VAR teenhome_count =
+    CALCULATE(
+            COUNT(CustomerDim[Teenhome]), 
+            KEEPFILTERS(CustomerDim[Teenhome] > 0)
+    )
+    RETURN
+        DIVIDE(teenhome_count, COUNTROWS(CustomerDim), 0)
+
+MEASURE DAX_Measures[Total Customer by Decil and Recency] = 
+VAR total_customers = COUNTROWS(CustomerValueDim)
+VAR customer_by_recency =
+    CALCULATE(
+        total_customers,
+        FILTER(
+            ALL(CustomerValueDim),
+            CustomerValueDim[Income Decile] = SELECTEDVALUE(CustomerValueDim[Income Decile])
+        ),
+    VALUES(CustomerValueDim[Recency])
+    )
+    RETURN
+        IF(ISBLANK(customer_by_recency), total_customers, customer_by_recency)
+
+---- MODEL MEASURES END ----
+
+
+
+
+
+
